@@ -1,6 +1,6 @@
 extends Node2D
 @export var width  = 600
-@export var height  = 200
+@export var height  = 400
 @onready var tilemap = $TileMap
 var temperature = {}
 var moisture = {}
@@ -10,10 +10,11 @@ var fastNoiseLite = FastNoiseLite.new()
 
 var tiles = {"grass": 2, "water": 4, "stone": 5}
 
-func generate_map(per, oct):
-	fastNoiseLite.seed = randi()
+
+func generate_map(freq, oct, seed):
+	fastNoiseLite.seed = seed
 	#fastNoiseLite.noise_type = 3
-	fastNoiseLite.frequency = 0.03
+	fastNoiseLite.frequency = freq
 	fastNoiseLite.fractal_octaves = oct
 	var gridName = {}
 	for x in width:
@@ -25,9 +26,9 @@ func generate_map(per, oct):
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	temperature = generate_map(300, 5)
-	moisture = generate_map(300, 5)
-	altitude = generate_map(150, 5)
+	temperature = generate_map(0.03, 5, randi())
+	moisture = generate_map(0.01, 3, randi())
+	altitude = generate_map(0.01, 7, randi())
 	set_tile(width, height)
 
 func set_tile(width, height):
