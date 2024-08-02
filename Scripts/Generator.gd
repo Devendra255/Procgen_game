@@ -1,20 +1,36 @@
 extends Node2D
 var thread : Thread
-var biom = BiomeGen.new(200,200)
-
+var biom : BiomeGen
+#var tile := {
+	#"tileName":{
+		#"layer": 0, 
+		#"source_id": -1, 
+		#"atlas_coords": Vector2i(-1, -1)
+	#}
+#}
+var biome_info := {
+	"sea":{
+		"alt": [-1, 0.01],
+		"ppt": [-1, 1],
+		"tem": [-1, 1]
+	},
+	"land":{
+		"alt": [0.01, 1],
+		"ppt": [-1, 1],
+		"tem": [-1, 1]
+	}
+}
 func gen_biomes():
-	biom.alt = biom.value_from_noise(biom.alt_noise)
-	biom.ppt = biom.value_from_noise(biom.ppt_noise)
-	biom.tem = biom.value_from_noise(biom.tem_noise)
-	print(biom.alt)
-	print(biom.ppt)
-	print(biom.tem)
+	biom = BiomeGen.new(200,200)
 	
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	thread = Thread.new()
 	thread.start(gen_biomes)
+	if thread.is_alive():
+		thread.wait_to_finish()
+		biom.set_biomes(biome_info)
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
