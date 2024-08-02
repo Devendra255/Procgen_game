@@ -29,17 +29,15 @@ func _init(height: int,width: int):
 		self.thread_alt.wait_to_finish()
 		self.thread_ppt.wait_to_finish()
 		self.thread_tem.wait_to_finish()
-		print("Done") # Remember to remove prints 
-	print("Done")
 
-func set_alt():
+func set_alt()-> void:
 	self.alt = self.value_from_noise(self.alt_noise)
-func set_ppt():
+func set_ppt()-> void:
 	self.ppt = self.value_from_noise(self.ppt_noise)
-func set_tem():
+func set_tem()-> void:
 	self.tem = self.value_from_noise(self.tem_noise)
 
-func pre_noiseSetup() -> void:
+func pre_noiseSetup()-> void:
 	self.ppt_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	self.ppt_noise.frequency = 0.005
 	self.ppt_noise.fractal_octaves = 3
@@ -51,7 +49,7 @@ func pre_noiseSetup() -> void:
 	self.tem_noise.fractal_gain = 0.17
 	self.tem_noise.fractal_weighted_strength = -0.52
 	
-func value_from_noise(noise: FastNoiseLite) -> Dictionary: 
+func value_from_noise(noise: FastNoiseLite)-> Dictionary: 
 	var gridValue := {}
 	for x in self.width+1:
 		for y in self.height+1:
@@ -59,11 +57,13 @@ func value_from_noise(noise: FastNoiseLite) -> Dictionary:
 			gridValue[Vector2(x,y)] = value
 	return gridValue 
 
-func between(val, start, end):
+func between(val, start, end)-> bool:
 	if start <= val and val < end:
 		return true
+	return false
 
-func set_biomes(biome_info: Dictionary, tilemap: TileMap=null, tiles: Dictionary={}):
+func set_biomes(biome_info: Dictionary, 
+				tilemap: TileMap=null, tiles: Dictionary={})-> void:
 	for x in self.width+1:
 		for y in self.height+1:
 			var pos := Vector2(x,y)
