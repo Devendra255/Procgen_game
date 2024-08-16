@@ -63,18 +63,18 @@ class Biome2D extends BiomeGen:
 				if not self.biomes.has(pos):
 					self.biomes[pos] = [biome, Vector2i(-1, -1)]
 
-	func render_tiles(tiles: Dictionary, tilemap: TileMap, player_pos: Vector2i) -> void:
+	func render_tiles(tiles: Dictionary, tilemap: TileMapLayer, player_pos: Vector2i) -> void:
 		for x in width:
 			for y in height:
 				var pos := Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
 				var biome = biomes[pos][0]
 				var temp = biomes[pos][1]
 				if temp == Vector2i(-1, -1):
-					temp = tiles[biome][2].pick_random()
+					temp = tiles[biome][1].pick_random()
 					biomes[pos][1] = temp
-				tilemap.set_cell(tiles[biome][0], pos, tiles[biome][1], temp)
+				tilemap.set_cell(pos, tiles[biome][0], temp)
 				
-	func unload_distant_chunks(player_pos, tilemap: TileMap) -> void:
+	func unload_distant_chunks(player_pos, tilemap: TileMapLayer) -> void:
 		var unload_distance_threshold := (width * 4) + 1
 		for chunk in biomes:
 			var distance_to_player = get_dist(chunk, player_pos)
@@ -86,7 +86,7 @@ class Biome2D extends BiomeGen:
 		var resultant = p1 - p2
 		return sqrt(resultant.x ** 2 + resultant.y ** 2)
 		
-	func clear_chunk(pos, tilemap: TileMap) -> void:
+	func clear_chunk(pos, tilemap: TileMapLayer) -> void:
 		for x in range(width):
 			for y in range(height):
-				tilemap.set_cell(0, Vector2i(pos.x - floor(width as float / 2) + x, pos.y - floor(height as float / 2)), -1, Vector2(-1, -1), -1)
+				tilemap.set_cell(Vector2i(pos.x - floor(width as float / 2) + x, pos.y - floor(height as float / 2)), -1, Vector2(-1, -1))

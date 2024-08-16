@@ -4,16 +4,16 @@ var height := 40
 var width := 61
 var world_seed: int
 var player_tile_pos
-@onready var tile_map = $TileMap
+@onready var tile_map = $TileMapLayer
 @export var player: CharacterBody2D
 
 var tiles := {
-	"sea": [0, 0, [Vector2i(27, 5)]],
-	"beach": [0, 0, [Vector2i(19, 9)]],
-	"Grasslands": [0, 0, [Vector2i(1, 9), Vector2i(0, 11), Vector2i(1, 11), Vector2i(2, 11), Vector2i(4, 11)]],
-	"forest": [0, 0, [Vector2i(7, 9), Vector2i(6, 11), Vector2i(7, 11), Vector2i(8, 11)]],
-	"desert": [0, 0, [Vector2i(19, 9), Vector2i(18, 11), Vector2i(19, 11), Vector2i(20, 11)]],
-	"snow": [0, 0, [Vector2i(19, 15), Vector2i(18, 17), Vector2i(19, 17), Vector2i(20, 17)]],
+	"sea": [0, [Vector2i(27, 5)]],
+	"beach": [0, [Vector2i(19, 9)]],
+	"Grasslands": [0, [Vector2i(1, 9), Vector2i(0, 11), Vector2i(1, 11), Vector2i(2, 11), Vector2i(4, 11)]],
+	"forest": [0, [Vector2i(7, 9), Vector2i(6, 11), Vector2i(7, 11), Vector2i(8, 11)]],
+	"desert": [0, [Vector2i(19, 9), Vector2i(18, 11), Vector2i(19, 11), Vector2i(20, 11)]],
+	"snow": [0, [Vector2i(19, 15), Vector2i(18, 17), Vector2i(19, 17), Vector2i(20, 17)]],
 }
 var biome_info := { # -2 or 2 is like negative or positive infinaty
 	"sea": [[-2, 0.04], [-2, 2], [-2, 2]],
