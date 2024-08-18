@@ -111,13 +111,13 @@ class Biome2D extends BiomeGen:
 				tilemap.set_cell(Vector2i(pos.x - floor(width as float / 2) + x, pos.y - floor(height as float / 2) + y), -1, Vector2i(-1, -1), -1)
 
 	func create_rivers(player_pos: Vector2i = Vector2i(0, 0)) -> void:
-		for x in self.width:
-			for y in self.height:
+		for x in self.width + 5:
+			for y in self.height + 5:
 				var pos := Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
 				var water_point := [self.get_river_points_value(pos), self.get_altitude(pos)]
-				var itr_points := []
-				if water_point[0] >= -0.6 and water_point[1] > 0.3:
-					if not self.water.has(pos):
+				var itr_points : Array[Vector2i]
+				if not self.water.has(pos):
+					if water_point[0] >= -0.6 and water_point[1] > 0.3:
 						itr_points.append(pos)
 						while itr_points.size() > 0:
 							var itr_point = itr_points.pop_front()
@@ -129,8 +129,9 @@ class Biome2D extends BiomeGen:
 									var altitude = self.get_altitude(neighbor)
 									if altitude < water_level and altitude > 0:
 										self.water[neighbor] = "river"
-										if itr_points.size() < 3:
-											itr_points.append(neighbor)
+										itr_points.append(neighbor)
+									if itr_points.size() > 4:
+										break
 
 func get_neighbors(pos: Vector2i) -> Array:
 	var neighbors := []

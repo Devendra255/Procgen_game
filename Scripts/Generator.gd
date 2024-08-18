@@ -26,7 +26,7 @@ var biome_info := { # -2 or 2 is like negative or positive infinaty
 }
 
 func Generating() -> void:
-	world_seed = randi()
+	world_seed = 1941095856
 	biome = BiomeGen.Biome2D.new(self.height * 2, self.width * 2, world_seed)
 	biome.create_rivers(tile_map.local_to_map(player.position))
 	biome.set_biomes(biome_info, tile_map.local_to_map(player.position))
