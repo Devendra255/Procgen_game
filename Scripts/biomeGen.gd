@@ -59,6 +59,10 @@ func get_river_points_value(pos: Vector2i) -> float:
 
 class Biome2D extends BiomeGen:
 
+	var first_time := true
+	var value_jump := 1
+	var search_value := 3
+
 	func between(val, start, end) -> bool:
 		if start <= val and val < end:
 			return true
@@ -66,8 +70,17 @@ class Biome2D extends BiomeGen:
 
 	func set_biomes(biome_info: Dictionary, player_pos: Vector2i = Vector2i(0, 0)) -> void:
 		for x in self.width:
-			for y in self.height:
-				var pos := Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
+			var y = 0
+			while y < self.height:
+				var pos : Vector2i
+				if !first_time:
+					if (x > search_value-1 and x < width - search_value) and (y > search_value-1 and y < height - search_value):
+						value_jump = height - search_value * 2 
+					else:
+						value_jump = 1
+						pos = Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
+				else:
+					pos = Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
 				var altitude: float = get_altitude(pos)
 				var precipition: float = get_precipition(pos)
 				var temprature: float = get_temprature(pos)
@@ -81,25 +94,40 @@ class Biome2D extends BiomeGen:
 					self.biomes[pos] = [biome, Vector2i(-1, -1)]
 				if self.water.has(pos):
 					self.biomes[pos] = ["river", Vector2i(-1, -1)]
+				y += value_jump
+		# first_time = false
 
 	func render_tiles(tiles: Dictionary, tilemap: TileMapLayer, player_pos: Vector2i) -> void:
 		for x in self.width:
-			for y in self.height:
-				var pos := Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
-				var biome = biomes[pos][0]
-				var temp = biomes[pos][1]
+			var y = 0
+			while y < self.height:
+				var pos : Vector2i
+				if !first_time:
+					if (x > search_value-1 and x < width - search_value) and (y > search_value-1 and y < height - search_value):
+						value_jump = height - search_value * 2 
+					else:
+						value_jump = 1
+						pos = Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
+				else:
+					pos = Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
+				var biome = self.biomes[pos][0]
+				var temp = self.biomes[pos][1]
 				if temp == Vector2i(-1, -1):
 					temp = tiles[biome][1].pick_random()
-					biomes[pos][1] = temp
+					self.biomes[pos][1] = temp
 				tilemap.set_cell(pos, tiles[biome][0], temp)
+				y += value_jump
+		first_time = false
 				
 	func unload_distant_chunks(player_pos, tilemap: TileMapLayer) -> void:
-		var unload_distance_threshold := (width * 3) + 1
-		for chunk in biomes:
+		var unload_distance_threshold := (width * 2) + 1
+		for chunk in self.biomes:
+			if self.biomes == null:
+				print("Break")
 			var distance_to_player = get_dist(chunk, player_pos)
 			if distance_to_player > unload_distance_threshold:
 				clear_chunk(chunk, tilemap)
-				biomes.erase(chunk)
+				self.biomes.erase(chunk)
 
 	func get_dist(p1, p2) -> float:
 		var resultant = p1 - p2
@@ -108,7 +136,8 @@ class Biome2D extends BiomeGen:
 	func clear_chunk(pos, tilemap: TileMapLayer) -> void:
 		for x in self.width:
 			for y in self.height:
-				tilemap.set_cell(Vector2i(pos.x - floor(width as float / 2) + x, pos.y - floor(height as float / 2) + y), -1, Vector2i(-1, -1), -1)
+				# tilemap.set_cell(Vector2i(pos.x - floor(width as float / 2) + x, pos.y - floor(height as float / 2) + y), -1, Vector2i(-1, -1), -1)
+				tilemap.erase_cell(Vector2i(pos.x - floor(width as float / 2) + x, pos.y - floor(height as float / 2) + y))
 
 	func create_rivers(player_pos: Vector2i = Vector2i(0, 0)) -> void:
 		for x in self.width + 5:

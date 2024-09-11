@@ -1,7 +1,7 @@
 extends Node2D
 var biome: BiomeGen
-var height := 40
-var width := 61
+var height := 41
+var width := 73
 var world_seed: int
 var player_tile_pos
 @onready var tile_map = $TileMapLayer
