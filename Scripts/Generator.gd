@@ -25,6 +25,10 @@ var biome_info := { # -2 or 2 is like negative or positive infinaty
 	"snow": [[0.4, 2], [-2, 2], [-2, 0.2]],
 }
 
+var village_tiles := {
+	"brick": [0, Vector2i(12, 15)]
+}
+
 func Generating() -> void:
 	world_seed = 1941095856
 	biome = BiomeGen.Biome2D.new(self.height * 2, self.width * 2, world_seed)
@@ -47,6 +51,7 @@ func _process(delta):
 		biome.create_rivers(player_tile_pos)
 		biome.set_biomes(biome_info, player_tile_pos)
 		biome.render_tiles(tiles, tile_map, player_tile_pos)
+		biome.renderVillages(village_tiles, tile_map, player_tile_pos, ["Grasslands", "forest", "snow"])
 		biome.unload_distant_chunks(player_tile_pos, tile_map)
 
 	player_tile_pos = tile_map.local_to_map(player.position)

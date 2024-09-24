@@ -3,11 +3,13 @@ class_name BiomeGen
 var height: int
 var width: int
 var biomes := {}
+var villages := {Vector2i(0,0):'brick'}
 var water := {}
 var alt_noise := FastNoiseLite.new()
 var ppt_noise := FastNoiseLite.new()
 var tem_noise := FastNoiseLite.new()
 var river_points := FastNoiseLite.new()
+var village_points := FastNoiseLite.new()
 
 func _init(init_height: int, init_width: int, world_seed: int):
 	self.height = init_height
@@ -18,6 +20,7 @@ func pre_noiseSetup(world_seed: int) -> void:
 	self.alt_noise.seed = world_seed
 	self.ppt_noise.seed = world_seed
 	self.tem_noise.seed = world_seed
+
 	self.river_points.seed = world_seed
 	self.river_points.noise_type = FastNoiseLite.TYPE_CELLULAR
 	self.river_points.frequency = 0.15
@@ -29,14 +32,29 @@ func pre_noiseSetup(world_seed: int) -> void:
 	self.river_points.cellular_distance_function = FastNoiseLite.CellularDistanceFunction.DISTANCE_EUCLIDEAN_SQUARED
 	self.river_points.cellular_return_type = FastNoiseLite.CellularReturnType.RETURN_DISTANCE2_MUL
 	self.river_points.cellular_jitter = 0.9
+
+	self.village_points.seed = world_seed + 1
+	self.village_points.noise_type = FastNoiseLite.TYPE_CELLULAR
+	self.village_points.frequency = 0.15
+	self.village_points.fractal_type = FastNoiseLite.FRACTAL_RIDGED
+	self.village_points.fractal_octaves = 5
+	self.village_points.fractal_lacunarity = 15.0
+	self.village_points.fractal_gain = -0.110
+	self.village_points.fractal_weighted_strength = 7.32
+	self.village_points.cellular_distance_function = FastNoiseLite.CellularDistanceFunction.DISTANCE_EUCLIDEAN_SQUARED
+	self.village_points.cellular_return_type = FastNoiseLite.CellularReturnType.RETURN_DISTANCE2_MUL
+	self.village_points.cellular_jitter = 0.9
+
 	self.alt_noise.frequency = 0.01
 	self.alt_noise.fractal_octaves = 5
+
 	self.ppt_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
 	self.ppt_noise.frequency = 0.01
 	self.ppt_noise.fractal_octaves = 3
 	self.ppt_noise.fractal_lacunarity = 3.0
 	self.ppt_noise.fractal_gain = 0.16
 	self.ppt_noise.fractal_weighted_strength = 0.92
+
 	self.tem_noise.frequency = 0.005
 	self.tem_noise.fractal_lacunarity = 3.23
 	self.tem_noise.fractal_gain = 0.17
@@ -56,6 +74,9 @@ func get_biomes(pos: Vector2i) -> String:
 
 func get_river_points_value(pos: Vector2i) -> float:
 	return self.river_points.get_noise_2d(pos.x, pos.y)
+
+func get_village_points_value(pos: Vector2i) -> float:
+	return self.village_points.get_noise_2d(pos.x, pos.y)
 
 class Biome2D extends BiomeGen:
 
@@ -97,7 +118,7 @@ class Biome2D extends BiomeGen:
 				y += value_jump
 		# first_time = false
 
-	func render_tiles(tiles: Dictionary, tilemap: TileMapLayer, player_pos: Vector2i) -> void:
+	func render_tiles(tiles: Dictionary, tilemap: TileMapLayer, player_pos: Vector2i, mode: int = 0) -> void:
 		for x in self.width:
 			var y = 0
 			while y < self.height:
@@ -110,12 +131,18 @@ class Biome2D extends BiomeGen:
 						pos = Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
 				else:
 					pos = Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
-				var biome = self.biomes[pos][0]
-				var temp = self.biomes[pos][1]
-				if temp == Vector2i(-1, -1):
-					temp = tiles[biome][1].pick_random()
-					self.biomes[pos][1] = temp
-				tilemap.set_cell(pos, tiles[biome][0], temp)
+					
+				if mode == 0:	
+					var biome = self.biomes[pos][0]
+					var temp = self.biomes[pos][1]
+					if temp == Vector2i(-1, -1):
+						temp = tiles[biome][1].pick_random()
+						self.biomes[pos][1] = temp
+					tilemap.set_cell(pos, tiles[biome][0], temp)
+				elif mode == 1:
+					if self.villages.has(Vector2i(x,y)):
+						var village = self.villages[Vector2i(x,y)]
+						tilemap.set_cell(pos, tiles[village][0], tiles[village][1])
 				y += value_jump
 		first_time = false
 				
@@ -162,11 +189,20 @@ class Biome2D extends BiomeGen:
 									if itr_points.size() > 4:
 										break
 
-func get_neighbors(pos: Vector2i) -> Array:
-	var neighbors := []
-	for x in range(-1, 2):
-		for y in range(-1, 2):
-			if (x == 0 and y == 0):
-				continue
-			neighbors.append(Vector2i(pos.x + x, pos.y + y))
-	return neighbors
+	func get_neighbors(pos: Vector2i) -> Array:
+		var neighbors := []
+		for x in range(-1, 2):
+			for y in range(-1, 2):
+				if (x == 0 and y == 0):
+					continue
+				neighbors.append(Vector2i(pos.x + x, pos.y + y))
+		return neighbors
+
+
+	func renderVillages(tiles: Dictionary, tilemap: TileMapLayer, player_pos: Vector2i, spawn_biomes: Array) -> void:
+		for x in self.width:
+			for y in self.height:
+				var pos := Vector2i(player_pos.x - floor(width as float / 2) + x, player_pos.y - floor(height as float / 2) + y)
+				if self.biomes[pos][0] in spawn_biomes:
+					if get_village_points_value(pos) >= -0.6:
+						self.render_tiles(tiles, tilemap, pos, 1)

@@ -728,4 +728,4 @@ rendering_quadrant_size = 32
 [node name="Player" parent="." instance=ExtResource("3_77gev")]
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
-zoom = Vector2(0.845, 0.845)
+zoom = Vector2(0.135, 0.135)
