@@ -21,6 +21,7 @@ GlobalPara="*res://Scripts/global_para.gd"
 
 [display]
 
+window/stretch/mode="canvas_items"
 window/vsync/vsync_mode=3
 
 [dotnet]
