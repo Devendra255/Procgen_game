@@ -6,6 +6,8 @@ var world_seed: int
 var player_tile_pos
 @onready var tile_map = $TileMapLayer
 @export var player: CharacterBody2D
+@onready var camera_2d: Camera2D = $Player/Camera2D
+@onready var label: Label = $CanvasLayer/Control/MarginContainer/Label
 
 var tiles := {
 	"sea": [0, [Vector2i(27, 5)]],
@@ -26,7 +28,7 @@ var biome_info := { # -2 or 2 is like negative or positive infinaty
 }
 
 func Generating() -> void:
-	world_seed = 1941095856
+	world_seed = GlobalPara.get_seed() #1941095856
 	biome = BiomeGen.Biome2D.new(self.height * 2, self.width * 2, world_seed)
 	biome.create_rivers(tile_map.local_to_map(player.position))
 	biome.set_biomes(biome_info, tile_map.local_to_map(player.position))
@@ -38,12 +40,22 @@ func Generating() -> void:
 func _ready():
 	Generating()
 	player_tile_pos = tile_map.local_to_map(player.position)
-func threading():
-	pass
+	label.text = str(player_tile_pos)
+
+
+func cam_zoom():
+	var up = Input.get_action_strength("Q")
+	var down = -(Input.get_action_strength("E"))
+	if camera_2d.zoom.x >= 0.08 or up == 1:
+		camera_2d.zoom.x += (up + down) * 0.05
+		camera_2d.zoom.y += (up + down) * 0.05
+	
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	cam_zoom()
 	if player_tile_pos != tile_map.local_to_map(player.position):
+		label.text = str(player_tile_pos)
 		biome.create_rivers(player_tile_pos)
 		biome.set_biomes(biome_info, player_tile_pos)
 		biome.render_tiles(tiles, tile_map, player_tile_pos)
