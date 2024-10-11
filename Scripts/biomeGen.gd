@@ -93,7 +93,7 @@ class Biome2D extends BiomeGen:
 								biome = key
 					self.biomes[pos] = [biome, Vector2i(-1, -1)]
 				if self.water.has(pos):
-					self.biomes[pos] = ["river", Vector2i(-1, -1)]
+					self.biomes[pos] = ["River", Vector2i(-1, -1)]
 				y += value_jump
 		# first_time = false
 
@@ -122,8 +122,6 @@ class Biome2D extends BiomeGen:
 	func unload_distant_chunks(player_pos, tilemap: TileMapLayer) -> void:
 		var unload_distance_threshold := (width * 2) + 1
 		for chunk in self.biomes:
-			if self.biomes == null:
-				print("Break")
 			var distance_to_player = get_dist(chunk, player_pos)
 			if distance_to_player > unload_distance_threshold:
 				clear_chunk(chunk, tilemap)
@@ -150,14 +148,14 @@ class Biome2D extends BiomeGen:
 						itr_points.append(pos)
 						while itr_points.size() > 0:
 							var itr_point = itr_points.pop_front()
-							self.water[itr_point] = "river"
+							self.water[itr_point] = "River"
 							var water_level = self.get_altitude(itr_point)
 							var neighbors = get_neighbors(itr_point)
 							for neighbor in neighbors:
 								if not self.water.has(neighbor):
 									var altitude = self.get_altitude(neighbor)
 									if altitude < water_level and altitude > 0:
-										self.water[neighbor] = "river"
+										self.water[neighbor] = "River"
 										itr_points.append(neighbor)
 									if itr_points.size() > 4:
 										break
