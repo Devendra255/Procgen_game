@@ -9,6 +9,7 @@ var player_tile_pos
 @onready var camera_2d: Camera2D = $Player/Camera2D
 @onready var label: Label = $CanvasLayer/Control/MarginContainer/VBoxContainer/Label
 @onready var label_2: Label = $CanvasLayer/Control/MarginContainer/VBoxContainer/Label2
+@onready var label_3: Label = $CanvasLayer/Control/MarginContainer/VBoxContainer/Label3
 
 var tiles := {
 	"Sea": [0, [Vector2i(27, 5)]],
@@ -42,7 +43,8 @@ func _ready():
 	Generating()
 	player_tile_pos = tile_map.local_to_map(player.position)
 	label.text = str(player_tile_pos)
-	label_2.text = "Biome: "+ biome.get_biomes(player_tile_pos)
+	label_2.text = "Biome: " + biome.get_biomes(player_tile_pos)
+	label_3.text = "Seed: " + str(world_seed)
 
 
 func cam_zoom():
